@@ -1,5 +1,6 @@
 variable "server-name" {
   type        = string
+  default     = "kot"
   description = "Name of a server to provision"
 }
 
@@ -9,14 +10,31 @@ locals {
 }
 
 variable "number-of-servers" {
-  type = number
+  type        = number
   description = "Required number of servers"
+  default     = 2
   validation {
-    condition = var.number-of-servers >= local.minNumberOfServer && var.number-of-servers < local.maxNumberOfServer
-    error_message = "Not supported number of server, it should be from the range ${local.minNumberOfServer} <= ${var.number-of-servers} < ${local.maxNumberOfServer}" 
+    condition     = var.number-of-servers >= local.minNumberOfServer && var.number-of-servers < local.maxNumberOfServer
+    error_message = "Not supported number of server, it should be from the range ${local.minNumberOfServer} <= ${var.number-of-servers} < ${local.maxNumberOfServer}"
   }
 }
 
-output "out" {
-  value = var.server-name
+variable "nubmer-of-disks" {
+  type = number
+}
+
+variable "list-of-names" {
+  type = list(string)
+}
+
+output "result" {
+  value = "${var.server-name} x ${var.number-of-servers}"
+}
+
+output "number-of-resources" {
+  value = var.nubmer-of-disks + var.number-of-servers
+}
+
+output "list-of-names" {
+  value = "${join(", ",var.list-of-names)}"
 }
