@@ -1,52 +1,18 @@
-variable "server-name" {
-  type        = string
-  default     = "kot"
-  description = "Name of a server to provision"
-}
+# Write a calculator
 
-locals {
-  minNumberOfServer = 1
-  maxNumberOfServer = 10
-}
-
-locals {
-  countOfItems = {
-    disks = 13
-    servers = 22
-    max = local.maxNumberOfServer + var.nubmer-of-disks
-  } 
-}
-
-variable "number-of-servers" {
-  type        = number
-  description = "Required number of servers"
-  default     = 2
-  validation {
-    condition     = var.number-of-servers >= local.minNumberOfServer && var.number-of-servers < local.maxNumberOfServer
-    error_message = "Not supported number of server, it should be from the range ${local.minNumberOfServer} <= ${var.number-of-servers} < ${local.maxNumberOfServer}"
-  }
-}
-
-variable "nubmer-of-disks" {
+variable "a" {
   type = number
 }
 
-variable "list-of-names" {
-  type = list(string)
+variable "b" {
+  type = number
+}
+
+# Allowed: +, -, *, /
+variable "operand" {
+  
 }
 
 output "result" {
-  value = "${var.server-name} x ${var.number-of-servers}"
-}
-
-output "number-of-resources" {
-  value = var.nubmer-of-disks + var.number-of-servers
-}
-
-output "list-of-names" {
-  value = "${join(", ",var.list-of-names)}"
-}
-
-output "key-from-map" {
-  value = lookup(local.countOfItems, "max")
+  value = 
 }
