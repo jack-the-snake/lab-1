@@ -1,18 +1,28 @@
-# Write a calculator
-
-variable "a" {
-  type = number
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "6.25.0"
+    }
+  }
 }
 
-variable "b" {
-  type = number
+provider "aws" {
+  # Configuration options
 }
 
-# Allowed: +, -, *, /
-variable "operand" {
-  
+resource "aws_s3_bucket" "my-bucket" {
+  bucket_prefix = "awsninja20-"
 }
 
-output "result" {
-  value = 
+output "bucket_name" {
+  value = aws_s3_bucket.my-bucket.bucket
+}
+
+resource "aws_s3_object" "object" {
+  for_each = fileset(path.module, "messages/*")
+
+  bucket = aws_s3_bucket.my-bucket.bucket
+  key    = basename(each.key)
+  source = each.key
 }
