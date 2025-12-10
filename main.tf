@@ -9,11 +9,19 @@ terraform {
 
 provider "aws" {
   # Configuration options
+  ignore_tags {
+    keys = var.tags-to-ignore
+  }
 }
 
 variable "public-access" {
   type    = bool
   default = false
+}
+
+variable "tags-to-ignore" {
+  type    = list(string)
+  default = ["department"]
 }
 
 resource "aws_s3_bucket" "my-bucket" {
