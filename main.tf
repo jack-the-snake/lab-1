@@ -11,6 +11,11 @@ provider "aws" {
   # Configuration options
 }
 
+variable "public-access" {
+  type    = bool
+  default = false
+}
+
 resource "aws_s3_bucket" "my-bucket" {
   bucket_prefix = "awsninja20-"
 }
@@ -28,6 +33,7 @@ resource "aws_s3_object" "object" {
 }
 
 resource "aws_s3_bucket_policy" "allow_public_access" {
+  count      = var.public-access ? 1 : 0
   depends_on = [aws_s3_bucket_public_access_block.public_access]
 
   bucket = aws_s3_bucket.my-bucket.id
@@ -35,6 +41,8 @@ resource "aws_s3_bucket_policy" "allow_public_access" {
 }
 
 resource "aws_s3_bucket_public_access_block" "public_access" {
+  count = var.public-access ? 1 : 0
+
   bucket = aws_s3_bucket.my-bucket.id
 
   block_public_acls       = false
