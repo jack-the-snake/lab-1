@@ -5,10 +5,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "6.25.0"
     }
-    http = {
-      source = "hashicorp/http"
-      version = "3.5.0"
-    }
   }
 }
 
@@ -17,25 +13,43 @@ provider "aws" {
 
 }
 
-provider "http" {
-  # Configuration options
+variable "name_prefix" {
+  type = string
+  default = "awsninja20"
 }
 
+resource "aws_instance" "app_server" {
+  ami           = "ami-037337ee399fa47a0"
+  instance_type = "t2.nano"
 
-data "http" "terraform_version" {
-  url = "https://checkpoint-api.hashicorp.com/v1/check/terraform"
+  vpc_security_group_ids = [
+    aws_security_group.allow_all.id
+  ]
+
+  tags = {
+    Name = "${var.name_prefix}-app-server"
+  }
 }
 
-locals {
-  terraform_details = jsondecode(data.http.terraform_version.response_body)
+resource "aws_security_group" "allow_all" {
+  name = "${var.name_prefix}-public-access"
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [ "0.0.0.0/0" ]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = [ "0.0.0.0/0" ]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 }
 
-
-# Terraform 1.14.2 (1765457324)
-output "info" {
-  value = "Terraform ${local.terraform_details.current_version} (${local.terraform_details.current_release})"
+output "server_ip" {
+  value = aws_instance.app_server.public_ip
 }
-
-
-
-
