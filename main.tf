@@ -13,11 +13,58 @@ provider "aws" {
 
 }
 
-# import {
-#   to = aws_s3_bucket.logs_bucket
-#   id = data.aws_s3_bucket.to_import.id
-# }
+variable "name_prefix" {
+  type    = string
+  default = "awsninja20"
+}
 
-# data "aws_s3_bucket" "to_import" {
-#   bucket = "awsninja20-to-import-1234"
-# }
+variable "server_version" {
+  type = string
+  validation {
+    condition     = var.server_version == "1" || var.server_version == "2"
+    error_message = "wrong version"
+  }
+}
+
+data "aws_ami" "server_ami" {
+  filter {
+    name   = "name"
+    values = ["ubuntu-linux-apache-${var.server_version}-*"]
+  }
+}
+
+resource "aws_instance" "app_server" {
+  ami           = data.aws_ami.server_ami.id
+  instance_type = "t3.micro"
+
+  vpc_security_group_ids = [
+    aws_security_group.allow_all.id
+  ]
+
+  tags = {
+    Name = "${var.name_prefix}-app-server"
+  }
+}
+
+resource "aws_security_group" "allow_all" {
+  name = "${var.name_prefix}-public-access"
+  ingress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+output "server_ip" {
+  value = aws_instance.app_server.public_ip
+}
